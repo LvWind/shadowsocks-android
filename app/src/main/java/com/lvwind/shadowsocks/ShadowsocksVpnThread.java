@@ -66,7 +66,7 @@ public class ShadowsocksVpnThread extends Thread {
                                 boolean ret = vpnService.protect(fd);
                                 //Log.d(TAG, "protect");
 
-                                // Trick to close file decriptor
+                                // Trick to close file descriptor
                                 System.jniclose(fd);
 
                                 if (ret) {
