@@ -1,21 +1,14 @@
-classes
-bin
-gen
-target
-local.properties
-.classpath
-.project
-.settings
-tests/bin
-tests/gen
-tests/local.properties
-NUL
-gen_*
-*.class
-*.o
-local.sbt
+/local.properties
+/captures
+# Built application files
+*.apk
+*.ap_
 
-#Intellij IDEA
+# Generated files
+bin/
+gen/
+
+# Intellij IDEA
 *.iml
 *.ipr
 *.iws
@@ -23,11 +16,13 @@ local.sbt
 out/
 .d
 
-#NDK
-src/main/obj
-src/main/libs
-src/main/assets/armeabi
-src/main/assets/armeabi-v7a
-src/main/assets/x86
-src/main/assets/api-16/
-jni/Application.mk
+# Android Studio and Gradle specific entries
+.gradle
+.navigation
+build
+# Mac .DS_Store files
+.DS_Store
+
+# NDK
+libs/
+obj/

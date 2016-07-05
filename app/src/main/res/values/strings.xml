@@ -1,0 +1,19 @@
+<resources>
+	<string name="app_name">Shadowsocks</string>
+	<string name="title_cancel">Cancel Confirmation</string>
+	<string name="cancel_connection_query">Disconnect the connected VPN or cancel the connection attempt?</string>
+
+	<string name="state_connecting">Connecting</string>
+	<string name="state_wait">Waiting for server reply</string>
+	<string name="state_auth">Authenticating</string>
+	<string name="state_get_config">Getting client configuration</string>
+	<string name="state_assign_ip">Assigning IP addresses</string>
+	<string name="state_add_routes">Adding routes</string>
+	<string name="state_connected">Connected</string>
+	<string name="state_disconnected">Disconnect</string>
+	<string name="state_reconnecting">Reconnecting</string>
+	<string name="state_noprocess">Not running</string>
+	<string name="cancel_connection">Disconnect</string>
+	<string name="action_settings">Settings</string>
+
+</resources>
