@@ -25,7 +25,8 @@ public class AssetsUtil {
                 ab += "chmod 755 " + Constants.Path.BASE + "/redsocks" + ";";
                 ab += "chmod 755 " + Constants.Path.BASE + "/ss-local" + ";";
                 ab += "chmod 755 " + Constants.Path.BASE + "/ss-tunnel" + ";";
-                ab += "chmod 755 " + Constants.Path.BASE + "/tun2socks";
+                ab += "chmod 755 " + Constants.Path.BASE + "/tun2socks" + ";";
+                ab += "chmod 755 " + Constants.Path.BASE + "/kcptun";
                 System.exec(ab);
 
             }

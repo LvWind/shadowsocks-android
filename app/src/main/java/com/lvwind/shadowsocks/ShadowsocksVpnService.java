@@ -13,10 +13,7 @@ import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import com.lvwind.shadowsocks.database.SsConfig;
-import com.lvwind.shadowsocks.process.PdnsdProcess;
-import com.lvwind.shadowsocks.process.SsLocalProcess;
-import com.lvwind.shadowsocks.process.SsTunnelProcess;
-import com.lvwind.shadowsocks.process.Tun2socksProcess;
+import com.lvwind.shadowsocks.process.*;
 import com.lvwind.shadowsocks.ui.activity.Disconnect;
 import com.lvwind.shadowsocks.ui.activity.MainActivity;
 import com.lvwind.shadowsocks.utils.ConfigUtils;
@@ -46,6 +43,7 @@ public class ShadowsocksVpnService extends BaseService {
     SsTunnelProcess sstunnelProcess;
     PdnsdProcess pdnsdProcess;
     Tun2socksProcess tun2socksProcess;
+    KcptunProcess kcptunProcess;
 
     public void startShadowsocksDaemon() {
         //ACL(Access Control List) bypass
@@ -92,6 +90,13 @@ public class ShadowsocksVpnService extends BaseService {
             sstunnelProcess.start();
         }
         Log.d(TAG, "start DnsTun");
+    }
+
+    public void startKcpTunnel() {
+        kcptunProcess = KcptunProcess.createKcptun(getContext(),config);
+        if (kcptunProcess != null) {
+            kcptunProcess.start();
+        }
     }
 
     public void startDnsDaemon() {
@@ -238,6 +243,10 @@ public class ShadowsocksVpnService extends BaseService {
             pdnsdProcess.destroy();
             pdnsdProcess = null;
         }
+        if (kcptunProcess != null) {
+            kcptunProcess.destroy();
+            kcptunProcess = null;
+        }
     }
 
 
@@ -292,6 +301,7 @@ public class ShadowsocksVpnService extends BaseService {
         startShadowsocksDaemon();
         startDnsDaemon();
         startDnsTunnel();
+        startKcpTunnel();
         try {
             int fd = startVpn();
             if (!sendFd(fd)) {
