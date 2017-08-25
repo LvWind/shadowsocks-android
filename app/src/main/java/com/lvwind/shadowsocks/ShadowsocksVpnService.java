@@ -1,6 +1,7 @@
 package com.lvwind.shadowsocks;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -11,6 +12,7 @@ import android.net.VpnService;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import com.lvwind.shadowsocks.database.SsConfig;
 import com.lvwind.shadowsocks.process.*;
@@ -20,15 +22,19 @@ import com.lvwind.shadowsocks.utils.ConfigUtils;
 import com.lvwind.shadowsocks.utils.NetworkUtil;
 import org.xbill.DNS.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.util.*;
+import java.util.Locale;
 
 /**
  * Created by LvWind on 16/6/27.
  */
 public class ShadowsocksVpnService extends BaseService {
     private static final int SHADOWSOCKS_STATUS = 10001;
+    public static final String NOTIFICATION_CHANNEL_NAME = "channel";
+    public static final String NOTIFICATION_CHANNEL_ID = "channel_id";
     private static final String TAG = ShadowsocksVpnService.class.getSimpleName();
 
     int VPN_MTU = 1500;
@@ -93,7 +99,7 @@ public class ShadowsocksVpnService extends BaseService {
     }
 
     public void startKcpTunnel() {
-        kcptunProcess = KcptunProcess.createKcptun(getContext(),config);
+        kcptunProcess = KcptunProcess.createKcptun(getContext(), config);
         if (kcptunProcess != null) {
             kcptunProcess.start();
         }
@@ -166,7 +172,7 @@ public class ShadowsocksVpnService extends BaseService {
                         + "--logger stdout",
                 String.format(Locale.ENGLISH, PRIVATE_VLAN, "2"), config.localPort, fd, VPN_MTU, Constants.Path.BASE + "/sock_path");
         if (config.isIpv6())
-            cmd += " --netif-ip6addr " + String.format(Locale.ENGLISH, PRIVATE_VLAN6 , "2");
+            cmd += " --netif-ip6addr " + String.format(Locale.ENGLISH, PRIVATE_VLAN6, "2");
 
         if (config.isUdpdns())
             cmd += " --enable-udprelay";
@@ -204,7 +210,7 @@ public class ShadowsocksVpnService extends BaseService {
 
     @Override
     public IBinder onBind(Intent intent) {
-            Log.d(TAG, "onBind");
+        Log.d(TAG, "onBind");
         String action = intent.getAction();
         if (VpnService.SERVICE_INTERFACE.equals(action)) {
             return super.onBind(intent);
@@ -301,7 +307,7 @@ public class ShadowsocksVpnService extends BaseService {
         startShadowsocksDaemon();
         startDnsDaemon();
         startDnsTunnel();
-        startKcpTunnel();
+//        startKcpTunnel();
         try {
             int fd = startVpn();
             if (!sendFd(fd)) {
@@ -401,12 +407,19 @@ public class ShadowsocksVpnService extends BaseService {
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        android.app.Notification.Builder nBuilder = new Notification.Builder(this);
-        nBuilder.setContentTitle(getString(R.string.app_name));
-        nBuilder.setOnlyAlertOnce(true);
-        nBuilder.setOngoing(true);
-        nBuilder.setContentIntent(pendingIntent);
-        nBuilder.setSmallIcon(R.drawable.ic_stat);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel mChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW);
+            mNotificationManager.createNotificationChannel(mChannel);
+        }
+        NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        nBuilder
+                .setContentTitle(getString(R.string.app_name))
+                .setOnlyAlertOnce(true)
+                .setOngoing(true)
+                .setPriority(Notification.PRIORITY_LOW)
+                .setContentIntent(pendingIntent)
+                .setChannelId(NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_stat);
 
         if (state == Constants.State.CONNECTED) {
             nBuilder.setContentText(getString(R.string.state_connected));
@@ -426,18 +439,17 @@ public class ShadowsocksVpnService extends BaseService {
             nBuilder.setContentText(getString(R.string.state_noprocess));
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            Intent disconnectVPN = new Intent(this, Disconnect.class);
-            disconnectVPN.setAction(Constants.Action.CLOSE);
-            PendingIntent disconnectPendingIntent = PendingIntent.getActivity(this, 0, disconnectVPN, 0);
 
-            nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel,
-                    getString(R.string.cancel_connection), disconnectPendingIntent);
-        }
+        Intent disconnectVPN = new Intent(this, Disconnect.class);
+        disconnectVPN.setAction(Constants.Action.CLOSE);
+        PendingIntent disconnectPendingIntent =
+                PendingIntent.getActivity(this, 0, disconnectVPN, 0);
+
+        nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel,
+                getString(R.string.cancel_connection), disconnectPendingIntent);
 
 
-        @SuppressWarnings("deprecation")
-        Notification notification = nBuilder.getNotification();
+        Notification notification = nBuilder.build();
         mNotificationManager.notify(SHADOWSOCKS_STATUS, notification);
     }
 

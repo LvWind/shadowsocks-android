@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.1"
 
     defaultConfig {
         applicationId "com.lvwind.shadowsocks"
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }
@@ -28,17 +28,17 @@ android {
             zipAlignEnabled false
             debuggable true
         }
-        applicationVariants.all { variant ->
-            variant.outputs.each { output ->
-                if (variant.buildType.name.equals("release")) {
-                    def outputFile = output.outputFile
-                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                        def fileName = "shadowsocks_v${defaultConfig.versionName}_${releaseTime()}.apk"
-                        output.outputFile = new File(outputFile.parent, fileName)
-                    }
-                }
-            }
-        }
+//        applicationVariants.all { variant ->
+//            variant.outputs.each { output ->
+//                if (variant.buildType.name.equals("release")) {
+//                    def outputFile = output.outputFile
+//                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+//                        def fileName = "shadowsocks_v${defaultConfig.versionName}_${releaseTime()}.apk"
+//                        output.outputFile = new File(outputFile.parent, fileName)
+//                    }
+//                }
+//            }
+//        }
     }
     lintOptions {
         checkReleaseBuilds false
@@ -51,13 +51,12 @@ def releaseTime() {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:design:25.1.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.android.support:appcompat-v7:26.0.1"
+    implementation "com.android.support:design:26.0.1"
 
     //dns
-    compile 'dnsjava:dnsjava:2.1.7'
+    implementation "dnsjava:dnsjava:2.1.8"
     //orm
-    compile 'com.j256.ormlite:ormlite-android:4.45'
+    implementation "com.j256.ormlite:ormlite-android:4.45"
 }

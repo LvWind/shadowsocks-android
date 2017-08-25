@@ -21,7 +21,7 @@ public class ShadowsocksVpnThread extends Thread {
     LocalServerSocket serverSocket = null;
     ShadowsocksVpnService vpnService;
 
-    public ShadowsocksVpnThread(ShadowsocksVpnService vpnService) {
+    ShadowsocksVpnThread(ShadowsocksVpnService vpnService) {
         this.vpnService = vpnService;
         PATH = Constants.Path.BASE + "/protect_path";
     }
@@ -110,7 +110,7 @@ public class ShadowsocksVpnThread extends Thread {
         }
     }
 
-    public void stopThread() {
+    void stopThread() {
         isRunning = false;
         closeServerSocket();
     }
